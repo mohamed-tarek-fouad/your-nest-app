@@ -1,10 +1,10 @@
-import { UsersService } from './users.service';
-import { UsersController } from './users.controller';
-
 import { Module } from '@nestjs/common';
 import { UserResolver } from './users.resolver';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import { CreateUserService } from './services/createUser.service';
+import { UsersService } from './services/getUsers.service';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -12,8 +12,11 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
       driver: ApolloDriver,
       autoSchemaFile: true,
     }),
+    JwtModule.register({
+      secret: process.env.JWT_SECRET, // Replace with your secret key
+    }),
   ],
-  controllers: [UsersController],
-  providers: [UsersService, UserResolver],
+  controllers: [],
+  providers: [CreateUserService, UserResolver, UsersService],
 })
 export class UsersModule {}
