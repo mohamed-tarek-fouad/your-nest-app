@@ -3,13 +3,13 @@ import { Collection, getRepository } from 'fireorm';
 import * as admin from 'firebase-admin';
 import * as fireorm from 'fireorm';
 import * as path from 'path';
-import { User } from './fireorm/user.repo';
-import serviceAccount from './test.json';
+import { User } from './user.repo';
+import serviceAccount from '../test.json';
 import { CreateUserDto } from './dtos/createUser.dto';
 @Injectable()
-export class AppService {
+export class UsersService {
   constructor() {
-    const serviceAccountPath = './test.json'; // Adjust the path accordingly
+    const serviceAccountPath = '../test.json'; // Adjust the path accordingly
     const serviceAccount = require(path.resolve(__dirname, serviceAccountPath));
 
     admin.initializeApp({
@@ -18,16 +18,17 @@ export class AppService {
 
     fireorm.initialize(admin.firestore()); // Initialize fireorm with Firestore instance
   }
-  async createUser(body: CreateUserDto) {
-    const todoRepository = getRepository(User);
-    const todo = body;
-
-    const todoDocument = await todoRepository.create(todo);
-    return todoDocument;
+  async createUserService(body: CreateUserDto) {
+    const userRepository = getRepository(User);
+    const userDocument = await userRepository.create({
+      email: body.email,
+      username: body.username,
+    });
+    return userDocument;
   }
   async allUsers() {
-    const todoRepository = getRepository(User);
-    const mySuperTodoDocument = await todoRepository.find();
-    return mySuperTodoDocument;
+    const userRepository = getRepository(User);
+    const mySuperuserDocument = await userRepository.find();
+    return mySuperuserDocument;
   }
 }
