@@ -1,17 +1,9 @@
-import {
-  Int,
-  Args,
-  Parent,
-  Query,
-  Mutation,
-  Resolver,
-  ResolveField,
-} from '@nestjs/graphql';
+import { Args, Query, Mutation, Resolver, Context } from '@nestjs/graphql';
 import { UserModel, UserInputCreate } from './users.model';
 import { CreateUserService } from './services/createUser.service';
 import { UsersService } from './services/getUsers.service';
-import { MiddlewareConsumer, UseGuards } from '@nestjs/common';
-import { FirebaseAuthGuard } from './firebaseAuth.service';
+import { UseGuards } from '@nestjs/common';
+import { FirebaseAuthGuard } from 'src/auth/auth.guard';
 @Resolver((of) => UserModel)
 export class UserResolver {
   constructor(
@@ -20,12 +12,12 @@ export class UserResolver {
   ) {}
   @UseGuards(FirebaseAuthGuard)
   @Query(() => [UserModel])
-  async getAllUsers(): Promise<UserModel[]> {
-    return this.userService.allUsers();
+  async getAllUsers(@Context() context: any) {
+    return this.userService.allUsers(context.req.user);
   }
 
   @Mutation(() => UserModel, { name: 'createUser' })
-  async createUser(@Args('data') input: UserInputCreate): Promise<UserModel> {
+  async createUser(@Args('data') input: UserInputCreate) {
     return this.createUserService.createUserService(input);
   }
 }

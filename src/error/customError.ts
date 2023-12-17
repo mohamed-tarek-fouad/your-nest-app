@@ -13,8 +13,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
     const status = exception.getStatus();
-    exception.stack = '';
-    console.log(exception.name, '', exception.getResponse());
-    exception.message = 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+    //exception.stack = '';
+    //console.log(exception.name, '', exception.getResponse());
+    //exception.message = 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
   }
 }

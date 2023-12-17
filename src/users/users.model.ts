@@ -6,7 +6,7 @@ export class UserModel {
   @Field()
   id: string;
   @Field()
-  username: string;
+  password: string;
   @Field()
   email: string;
 }
@@ -17,7 +17,7 @@ export class UserInputCreate {
   @MinLength(3, { message: '3 حروف' })
   @IsNotEmpty({ message: 'مش فاضية ' })
   @MaxLength(20, { message: 'مش اكتر من 20' })
-  username: string;
+  password: string;
   @IsNotEmpty()
   @IsEmail()
   @Field()

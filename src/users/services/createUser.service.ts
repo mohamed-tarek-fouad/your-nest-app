@@ -1,31 +1,37 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { getRepository, runTransaction } from 'fireorm';
-import { User } from '../user.repo';
-import { JwtService } from '@nestjs/jwt';
-import { TransactionRepository } from 'fireorm/lib/src/Transaction/BaseFirestoreTransactionRepository';
+import { runTransaction } from 'fireorm';
+import { userSchema } from '../user.repo';
 import { UserInputCreate } from '../users.model';
 import * as admin from 'firebase-admin';
+import * as uuid from 'uuid';
 @Injectable()
 export class CreateUserService {
-  constructor(private readonly jwtService: JwtService) {}
+  constructor() {}
   async createUserService(body: UserInputCreate) {
-    const userRepository = getRepository(User);
     const userTransaction = await runTransaction(async (tx) => {
+      // const user = tx.getRepository(User);
+
+      // const token = await admin
+      //   .auth()
+      //   .createCustomToken('DBdxRfq9qXWWhH61HLw2XD60IKk1');
+      // console.log('token', token);
+      const validateEmail = await admin
+        .firestore()
+        .collection(userSchema.collection)
+        .where('email', '==', body.email)
+        .get();
+      console.log(validateEmail.docs[0]);
+      if (validateEmail.docs[0])
+        throw new HttpException('email already exist', HttpStatus.BAD_REQUEST);
       const x = await admin
         .auth()
-        .createUser({ email: body.email, password: body.username });
-      this.jwtService.sign({ id: x.uid, name: x.displayName });
-      console.log(x);
-      const validateEmail = await userRepository
-        .whereEqualTo((user) => user.email, body.email)
-        .findOne();
-      if (validateEmail)
-        throw new HttpException('email already exist', HttpStatus.BAD_REQUEST);
-      const userDocument = await userRepository.create({
-        email: body.email,
-        username: body.username,
-      });
-      return userDocument;
+        .createUser({ email: body.email, password: body.password });
+      const userDocumentId = await admin
+        .firestore()
+        .collection(userSchema.collection)
+        .add({ email: body.email, password: body.password });
+      const userDocument = (await userDocumentId.get()).data();
+      return { ...userDocument, id: userDocumentId.id };
     });
 
     return userTransaction;
